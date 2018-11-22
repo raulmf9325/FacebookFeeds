@@ -10,6 +10,11 @@ import UIKit
 
 class FeedCell: UICollectionViewCell{
     
+    var cellViewController: FeedController!
+    
+    static var imageCache = [String: UIImage]()
+    var builtInImageCache = NSCache<AnyObject, AnyObject>()
+    
     var post: Post?{
         didSet{
             if let name = post?.name{
@@ -27,7 +32,6 @@ class FeedCell: UICollectionViewCell{
                 attachment.bounds = CGRect(x: 0, y: -2, width: 12, height: 12)
                 attributedText.append(NSAttributedString(attachment: attachment))
                 
-                
                 nameLabel.attributedText = attributedText
             }
             if let statusText = post?.statusText{
@@ -38,8 +42,24 @@ class FeedCell: UICollectionViewCell{
                 profileImageView.image = UIImage(named: imageName)
             }
             
-            if let statusImageName = post?.statusImageName{
-                statusImageView.image = UIImage(named: statusImageName)
+            if let statusImageURL = post?.statusImageURL{
+                
+                /*  naive dictionary for building a cache
+                 */
+                
+                //                if let image = FeedCell.imageCache[statusImageURL]{
+                //                    statusImageView.image = image
+                //                }
+                
+                /*  if image has been previously cached then fetch it from the cache
+                    else, download it off the internet
+//                 */
+                if let image = builtInImageCache.object(forKey: statusImageURL as AnyObject) as? UIImage{
+                    statusImageView.image = image
+                }
+                else{
+                    downloadImage(url: URL(string: statusImageURL))
+                }
             }
             
             if let numLikes = post?.numLikes{
@@ -50,6 +70,44 @@ class FeedCell: UICollectionViewCell{
                 likesCommentslabel.text?.append("\(numComments) Comments")
             }
         }
+    }
+    
+    private func downloadImage(url: URL?){
+        guard let url = url else {return}
+        activityIndicator.startAnimating()
+        
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if error != nil{
+                (error)
+                return
+            }
+            
+            if let data = data{
+                if let image = UIImage(data: data){
+                DispatchQueue.main.async(execute: {
+                    self.statusImageView.image = image
+                    self.activityIndicator.stopAnimating()
+                    self.builtInImageCache.setObject(image, forKey: url.absoluteString as AnyObject)   // caching the image in built-in NSCache
+                    FeedCell.imageCache[url.absoluteString] = image                                     // caching the image in imageCache
+                   // print(url.absoluteString)
+                })
+                }
+            }
+            }.resume()
+        
+    }
+    
+    @objc private func likeButtonHit(){
+        let likedImage = UIImage(named: "blue_like_1x")
+        let dislikedImage = UIImage(named: "like")
+        
+        if likeButton.image(for: .normal) == dislikedImage{
+            likeButton.setImage(likedImage, for: .normal)
+        }
+        else{
+            likeButton.setImage(dislikedImage, for: .normal)
+        }
+        
     }
     
     override init(frame: CGRect) {
@@ -70,8 +128,12 @@ class FeedCell: UICollectionViewCell{
         addSubview(likeButton)
         addSubview(commentButton)
         addSubview(shareButton)
+        statusImageView.addSubview(activityIndicator)
+        statusImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(animate)))
+        statusImageView.isUserInteractionEnabled = true
         
         likeButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(handleLongPressedGesture)))
+        likeButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(likeButtonHit)))
         
         let containers = [UIColor.yellow, .blue, .green].map { (color) -> UIView in
             let view = UIView()
@@ -99,7 +161,14 @@ class FeedCell: UICollectionViewCell{
         addConstraintsWithFormat(format: "H:|-12-[v0]", views: likesCommentslabel)
         addConstraintsWithFormat(format: "H:|-12-[v0]-12-|", views: dividerLineView)
         addConstraintsWithFormat(format: "H:|[v0]|", views: buttonStackView)
+ 
+        activityIndicator.anchor(top: statusImageView.topAnchor, leading: statusImageView.leadingAnchor, bottom: statusImageView.bottomAnchor, trailing: statusImageView.trailingAnchor, padding: UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50))
     }
+    
+    let activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        return indicator
+    }()
     
     let nameLabel: UILabel = {
         let label = UILabel()
@@ -120,6 +189,7 @@ class FeedCell: UICollectionViewCell{
         textView.text = "Meanwhile, the beast turned into the dark side"
         textView.font = UIFont.systemFont(ofSize: 14)
         textView.isScrollEnabled = false
+        textView.isEditable = false
         return textView
     }()
     
@@ -198,6 +268,10 @@ class FeedCell: UICollectionViewCell{
         iconsStackView.frame = container.frame
         return container
     }()
+    
+    @objc func animate(){
+        cellViewController.animate(statusImageView: statusImageView)
+    }
     
     static func buttonForTitle(title: String, imageName: String) -> UIButton{
         let button = UIButton()

@@ -13,21 +13,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
         
-        let layout = UICollectionViewFlowLayout()
-        let vc = FeedController(collectionViewLayout: layout)
-        
-        let navigationController = UINavigationController(rootViewController: vc)
-        window?.rootViewController = navigationController
-        
         UINavigationBar.appearance().barTintColor = UIColor(red: 51/255, green: 90/255, blue: 149/255, alpha: 1)
         UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         application.statusBarStyle = .lightContent
+        
+        window?.rootViewController = TabBarController()
+        
+        /*  Changing the default color of tab bar items when selected
+         */
+        UITabBar.appearance().tintColor = UIColor(red: 70/255, green: 146/255, blue: 250/255, alpha: 1)
         
         return true
     }

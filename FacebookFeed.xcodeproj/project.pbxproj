@@ -13,6 +13,8 @@
 		3E0B8709219FC9C500A790DD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E0B8707219FC9C500A790DD /* LaunchScreen.storyboard */; };
 		3E0B8711219FD5A600A790DD /* FeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E0B8710219FD5A600A790DD /* FeedCell.swift */; };
 		3E33220621A204EF00519BCB /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E33220521A204EF00519BCB /* Post.swift */; };
+		3E65BDEA21A6140300027AAD /* RequestsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E65BDE921A6140300027AAD /* RequestsController.swift */; };
+		3E794C0621A509BC00F58BFD /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E794C0521A509BC00F58BFD /* TabBarController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,8 @@
 		3E0B870A219FC9C500A790DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3E0B8710219FD5A600A790DD /* FeedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedCell.swift; sourceTree = "<group>"; };
 		3E33220521A204EF00519BCB /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
+		3E65BDE921A6140300027AAD /* RequestsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestsController.swift; sourceTree = "<group>"; };
+		3E794C0521A509BC00F58BFD /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,7 +62,6 @@
 			children = (
 				3E0B8712219FD5B500A790DD /* Views */,
 				3E0B8713219FD5C700A790DD /* Models */,
-				3E0B86FE219FC9C200A790DD /* AppDelegate.swift */,
 				3E0B8705219FC9C500A790DD /* Assets.xcassets */,
 				3E0B8707219FC9C500A790DD /* LaunchScreen.storyboard */,
 				3E0B870A219FC9C500A790DD /* Info.plist */,
@@ -69,7 +72,10 @@
 		3E0B8712219FD5B500A790DD /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				3E0B86FE219FC9C200A790DD /* AppDelegate.swift */,
 				3E0B8700219FC9C200A790DD /* ViewController.swift */,
+				3E794C0521A509BC00F58BFD /* TabBarController.swift */,
+				3E65BDE921A6140300027AAD /* RequestsController.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -156,7 +162,9 @@
 				3E0B8701219FC9C200A790DD /* ViewController.swift in Sources */,
 				3E0B86FF219FC9C200A790DD /* AppDelegate.swift in Sources */,
 				3E0B8711219FD5A600A790DD /* FeedCell.swift in Sources */,
+				3E794C0621A509BC00F58BFD /* TabBarController.swift in Sources */,
 				3E33220621A204EF00519BCB /* Post.swift in Sources */,
+				3E65BDEA21A6140300027AAD /* RequestsController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

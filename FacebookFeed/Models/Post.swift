@@ -13,6 +13,7 @@ class Post{
     var statusText: String?
     var imageName: String?
     var statusImageName: String?
+    var statusImageURL: String?
     var numComments: String?
     var numLikes: String?
 }

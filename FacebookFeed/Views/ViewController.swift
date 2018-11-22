@@ -15,17 +15,19 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
     override func viewDidLoad() {
         super.viewDidLoad()
         
+       // changeDefaultUrlCacheSize()
+        
         collectionView.backgroundColor = UIColor(white: 0.95, alpha: 1)
         collectionView.alwaysBounceVertical = true
         navigationItem.title = "Facebook Feed"
         collectionView.register(FeedCell.self, forCellWithReuseIdentifier: "FeedCellId")
-        
         
         let postMark = Post()
         postMark.name = "Mark Zuckerberg"
         postMark.statusText = "Meanwhile, the beast turned to the dark side"
         postMark.imageName = "zuckprofile"
         postMark.statusImageName = "zuckdog"
+        postMark.statusImageURL = "https://wallpapercave.com/wp/wp2126146.jpg"
         postMark.numLikes = "488"
         postMark.numComments = "10.7K"
         
@@ -33,6 +35,7 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         postJobs.name = "Steve Jobs"
         postJobs.imageName = "steve_profile"
         postJobs.statusImageName = "steve_status"
+        postJobs.statusImageURL = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Steve_Jobs_Headshot_2010-CROP2.jpg/1200px-Steve_Jobs_Headshot_2010-CROP2.jpg"
         postJobs.statusText = "My favorite things in life don’t cost any money. It’s really clear that the most precious resource we all have is time.\n Your work is going to fill a large part of your life, and the only way to be truly satisfied is to do what you believe is great work. And the only way to do great work is to love what you do. If you haven’t found it yet, keep looking. Don’t settle. As with all matters of the heart, you’ll know when you find it."
         postJobs.numLikes = "5K"
         postJobs.numComments = "1.2K"
@@ -43,10 +46,25 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         postGandhi.imageName = "gandhi"
         postGandhi.statusText = "Where there is love there is life.\n Happiness is when what you think, what you say, and what you do are in harmony. \n The weak can never forgive. Forgiveness is the attribute of the strong. \n Strength does not come from physical capacity. It comes from an indomitable will. \n In a gentle way, you can shake the world."
         postGandhi.statusImageName = "gandhi_status"
+        postGandhi.statusImageURL = "https://wallpapertag.com/wallpaper/full/1/7/b/832270-mahatma-gandhi-wallpapers-1920x1080-for-ios.jpg"
         postGandhi.numLikes = "1K"
         postGandhi.numComments = "457"
         
         posts = [postMark, postJobs, postGandhi]
+    }
+    
+    /*  If the app receives memory too large warning,
+        we flush the image cache
+     */
+    override func didReceiveMemoryWarning() {
+        FeedCell.imageCache = [String: UIImage]()
+    }
+    
+    // change the default URL cache size
+    func changeDefaultUrlCacheSize(){
+        let capacity = 500 * 1024 * 1024            // 500 MB
+        let cache = URLCache(memoryCapacity: capacity, diskCapacity: capacity, diskPath: nil)
+        URLCache.shared = cache
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -56,6 +74,7 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FeedCellId", for: indexPath) as! FeedCell
         cell.post = posts[indexPath.item]
+        cell.cellViewController = self
         return cell
     }
 
@@ -72,6 +91,68 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         super.viewWillTransition(to: size, with: coordinator)
         let flowLayout = collectionView.collectionViewLayout as! UICollectionViewFlowLayout
         flowLayout.invalidateLayout()
+    }
+    
+    let blackBackground = UIView()
+    let navBarCover = UIView()
+    let tabBarCover = UIView()
+    var imageView = UIImageView()
+    var startFrame: CGRect!
+    
+    func animate(statusImageView: UIImageView){
+        startFrame = statusImageView.superview?.convert(statusImageView.frame, to: self.view)
+        
+        imageView.image = statusImageView.image
+        imageView.frame = startFrame
+        imageView.isUserInteractionEnabled = true
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        
+        blackBackground.backgroundColor = .black
+        blackBackground.frame = view.frame
+        blackBackground.alpha = 0
+        
+        navBarCover.backgroundColor = .black
+        navBarCover.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 20 + 44)
+        navBarCover.alpha = 0
+        
+        tabBarCover.backgroundColor = .black
+        tabBarCover.frame = CGRect(x: 0, y: view.frame.height - 49, width: view.frame.width, height: 49)
+        tabBarCover.alpha = 0
+        
+        view.addSubview(blackBackground)
+        view.addSubview(imageView)
+        
+        let window = UIApplication.shared.keyWindow
+        window?.addSubview(navBarCover)
+        window?.addSubview(tabBarCover)
+        
+        imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissZoom)))
+        blackBackground.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissZoom)))
+        
+        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.5, options: UIView.AnimationOptions.curveEaseOut, animations: {
+            let y = self.view.frame.height / 2 - self.imageView.frame.height / 2
+            self.imageView.frame = CGRect(x: 0, y: y, width: self.view.frame.width, height: self.imageView.frame.height)
+            self.blackBackground.alpha = 1
+            self.navBarCover.alpha = 1
+            self.tabBarCover.alpha = 1
+        }) { (_) in
+            
+        }
+    }
+    
+    @objc func dismissZoom(){
+        UIView.animate(withDuration: 0.4, animations: {
+            self.imageView.frame = self.startFrame
+            self.blackBackground.alpha = 0
+            self.navBarCover.alpha = 0
+            self.tabBarCover.alpha = 0
+        }) { (_) in
+            self.blackBackground.removeFromSuperview()
+            self.imageView.removeFromSuperview()
+            self.navBarCover.removeFromSuperview()
+            self.tabBarCover.removeFromSuperview()
+        }
     }
     
 }
